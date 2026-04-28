@@ -1,0 +1,10 @@
+<article class="standard-form h-100">
+  <section class="scrollable">
+    {{#each settings as |setting k|}}
+      {{formField setting.field value=setting.value localize=true}}
+    {{/each}}
+  </section>
+  <footer class="form-footer">
+    <button type="submit" class="standard-button">{{localize "Save Changes"}}</button>
+  </footer>
+</article>

@@ -1,0 +1,8 @@
+gen/
+.directory
+venv/
+local.json
+dylans-general-automations.lock
+dylans-general-automations.js
+module.zip
+*.bak

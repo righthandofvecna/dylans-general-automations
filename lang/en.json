@@ -1,0 +1,68 @@
+{
+    "DGA": {
+        "Settings": {
+            "Volume": {
+                "interact": {
+                    "label": "Interact",
+                    "hint": "The sound made when you interact with an object or dialog."
+                },
+                "collide": {
+                    "label": "Collide",
+                    "hint": "The sound made when a token collides with a wall or other token."
+                },
+                "shatter": {
+                    "label": "Shatter",
+                    "hint": "The sound made when a breakable tile is broken."
+                }
+            },
+            "FieldMoves": {
+                "fragile": {
+                    "label": "Fragile",
+                    "hint": "Whether a tile marked as fragile can be broken by anyone."
+                }
+            }
+        },
+        "FieldMoves": {
+            "Fragile": {
+                "Title": "Fragile Tile",
+                "CannotUse": "This tile appears to be fragile.",
+                "CanUse": "This tile appears to be fragile. Would you like to break it?",
+                "Used": "{name} broke the fragile tile!"
+            }
+        },
+        "FollowMe": {
+            "OnFollow": "Following {name}!",
+            "OnFollowCombat": "Will follow {name} when combat complete!"
+        },
+        "Fields": {
+            "InteractionScript": {
+                "label": "Interaction Script",
+                "hint": "A script that runs when the object is interacted with."
+            }
+        },
+        "RegionBehaviorConfig": {
+            "Door": {
+                "legend": "Door Destination",
+                "destinationScene": {
+                    "label": "Destination Scene",
+                    "hint": "The scene this door leads to."
+                },
+                "destinationPosition": {
+                    "label": "Destination Position",
+                    "hint": "The position in the destination scene that tokens will be teleported to when they enter this door."
+                },
+                "pickLocation": "Pick Location"
+            }
+        }
+    },
+    "SCENE.TABS.SHEET.puzzle": "Puzzle",
+    "TILE.TABS.puzzle": "Puzzle",
+    "TOKEN.TABS.puzzle": "Puzzle",
+    "TYPES": {
+        "RegionBehavior": {
+            "dylans-general-automations.door": "Door",
+            "dylans-general-automations.oneWayJump": "One-Way Jump",
+            "dylans-general-automations.slidingIce": "Sliding Ice"
+        }
+    }
+}

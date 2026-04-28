@@ -1,0 +1,11 @@
+<article class="standard-form">
+    {{#each settings as |setting k|}}
+    <div class="form-group {{k}}" data-tooltip="{{setting.hint}}">
+        <label>{{localize setting.label}}</label>
+        <div class="form-fields">
+          <input type="checkbox" name="{{setting.key}}" {{#if setting.value}}checked{{/if}}>
+        </div>
+        <p class="hint">{{localize setting.hint}}</p>
+    </div>
+    {{/each}}
+</article>

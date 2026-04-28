@@ -1,0 +1,8 @@
+<article class="standard-form">
+    {{#each sfx as |settings k|}}
+    <div class="form-group {{k}}" data-tooltip="{{settings.hint}}">
+        <label>{{localize settings.label}}</label>
+        <input type="range" name="{{settings.key}}" min="0" max="1" step="0.05" value="{{settings.value}}">
+    </div>
+    {{/each}}
+</article>

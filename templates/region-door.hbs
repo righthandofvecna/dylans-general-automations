@@ -1,0 +1,21 @@
+<div class="standard-form">
+  <fieldset>
+    <legend>{{ localize "DGA.RegionBehaviorConfig.Door.legend" }}</legend>
+    <div class="form-group">
+      <label>{{ localize "DGA.RegionBehaviorConfig.Door.destinationScene.label" }}</label>
+      <div class="form-fields">
+        <input type="text" name="system.destinationSceneId" value="{{region.system.destinationSceneId}}">
+      </div>
+      <p class="hint">{{ localize "DGA.RegionBehaviorConfig.Door.destinationScene.hint" }}</p>
+    </div>
+    <div class="form-group">
+      <label>{{ localize "DGA.RegionBehaviorConfig.Door.destinationPosition.label" }}</label>
+      <div class="form-fields-stacked">
+        <input type="number" class="pos" name="system.destinationPosition.x" value="{{region.system.destinationPosition.x}}">
+        <input type="number" class="pos" name="system.destinationPosition.y" value="{{region.system.destinationPosition.y}}">
+        <button type="button" data-action="pickLocation">{{ localize "DGA.RegionBehaviorConfig.Door.pickLocation" }}</button>
+      </div>
+      <p class="hint">{{ localize "DGA.RegionBehaviorConfig.Door.destinationPosition.hint" }}</p>
+    </div>
+  </fieldset>
+</div>

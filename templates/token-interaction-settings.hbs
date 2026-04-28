@@ -1,0 +1,36 @@
+<div class="tab {{#if tab.active}} active{{/if}}" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+    <p class="notes">Additional attributes for controlling how the token can be interacted with.</p>
+    {{!-- <div class="form-group">
+      <label>Interaction Sound</label>
+      <div class="form-fields">
+        <select name="flags.{{MODULENAME}}.interactionSound">
+          <option value="" default>None</option>
+          {{#each dga.sounds as |v k|}}
+          <option value="{{k}}" {{#if (eq k ../dga.interactionSound)}}selected{{/if}}>{{v}}</option>
+          {{/each}}
+          <option class="custom-interaction" value="{{#if dga.isCustomSound}}{{dga.customSound}}{{else}}custom{{/if}}" {{#if dga.isCustomSound}}selected{{/if}}>Custom</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group custom-sound" {{#unless dga.isCustomSound}}style='display:none'{{/unless}}>
+      <label>Custom Interaction Sound</label>
+      <div class="form-fields">
+        <file-picker class="custom-interaction" type="audio" value="{{#if dga.isCustomSound}}{{dga.customSound}}{{/if}}"></file-picker>
+      </div>
+    </div> --}}
+    <div class="form-group">
+      <label>Dialogue</label>
+      <div class="form-fields">
+        <textarea name="flags.{{MODULENAME}}.dialogue">{{{dga.dialogue}}}</textarea>
+      </div>
+    </div>
+    {{#if dga.permissions.MACRO_SCRIPT}}
+    <fieldset {{#if dga.dialogue}}style="display:none"{{/if}}>
+      <legend>{{ localize "DGA.Fields.InteractionScript.label" }}</legend>
+      <label>Execute as GM? <input type="checkbox" name="flags.{{MODULENAME}}.scriptGm" {{#if dga.scriptGm}}checked{{/if}}></label>
+      {{formInput dga.scriptField value=dga.script language="javascript" elementType="code-mirror"
+        aria=(object label=(localize dga.scriptField.label))}}
+      <p class="hint">{{ localize "DGA.Fields.InteractionScript.hint" }}</p>
+    </fieldset>
+    {{/if}}
+  </div>
