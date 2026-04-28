@@ -43,7 +43,8 @@ async function RegionBehavior_handleRegionEvent(wrapped, event) {
   await wrapped(event);
   const system = this.system;
   if ( !(system instanceof foundry.data.regionBehaviors.RegionBehaviorType) ) return;
-  if (event.name !== "tokenInteract" || !this.getFlag(MODULENAME, "hasTokenInteract")) return;
+  if (event.name !== "tokenInteract") return;
+  if (!this.getFlag(MODULENAME, "hasTokenInteract") && !system.constructor.events?.["tokenInteract"]) return;
   await system._handleRegionEvent(event);
 }
 

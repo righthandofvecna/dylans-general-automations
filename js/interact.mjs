@@ -184,6 +184,14 @@ async function OnInteract() {
     }
   }
 
+  // check if we are inside an interactable region
+  for (const region of token.regions) {
+    if (region.behaviors.some(b=>b.active && (b.getFlag(MODULENAME, "hasTokenInteract") || b.system.constructor.events?.["tokenInteract"]))) {
+      Interact();
+      return region._triggerEvent("tokenInteract", { token });
+    }
+  }
+
   const foundryGridDirections = requireFacing ? [getGridDirectionFromAngle(token.rotation)] : [CONST.MOVEMENT_DIRECTIONS.UP, CONST.MOVEMENT_DIRECTIONS.DOWN, CONST.MOVEMENT_DIRECTIONS.RIGHT, CONST.MOVEMENT_DIRECTIONS.LEFT];
 
   // check if we are facing/adjacent to an interactable region
