@@ -481,56 +481,6 @@ function _setupToolbarDragHandling() {
 /* ------------------------------------------------------------------------- */
 
 
-/**
- * Show Image region
- * @param {*} regionConfig 
- * @returns 
- */
-async function CreateImageShow(regionConfig) {
-  const imageSrc = await new Promise((resolve)=>{
-    new FilePicker({ callback: (src, filePicker)=>{
-      resolve(src);
-    }}).render(true);
-  });
-  if (!imageSrc) return;
-
-  const title = imageSrc.substring(imageSrc.lastIndexOf("/") + 1, imageSrc.lastIndexOf(".")).replaceAll("_", " ").replaceAll("-", " ").replaceAll("%20", " ").titleCase();
-
-  // get the direction we need to look in order to trigger this
-  const directions = (await game.modules.get(MODULENAME).api.scripts.UserChooseDirections({
-    prompt: "Which direction(s) should the token be facing in order to be able to display this image?",
-    directions: ["upleft", "up", "upright"],
-  })) ?? [];
-  if (directions.length === 0) return;
-
-  // create the document
-  const behaviorData = {
-    type: "executeScript",
-    name: `Show Image: ${title}`,
-    flags: {
-      [MODULENAME]: {
-        "hasTokenInteract": true,
-      },
-    },
-    system: {
-      events: [],
-      source: `if (arguments.length < 4) return;
-
-// only for the triggering user
-const regionTrigger = arguments[3];
-if (regionTrigger.user !== game.user) return;
-
-const { token } = arguments[3]?.data;
-if (!token || !game.modules.get("${MODULENAME}")?.api?.scripts?.TokenHasDirection(token, ${JSON.stringify(directions)})) return;
-
-await game.modules.get("${MODULENAME}")?.api?.scripts?.Interact();
-new ImagePopout("${imageSrc}", { title: "${title}" }).render(true);`
-    }
-  };
-  await regionConfig.options.document.createEmbeddedDocuments("RegionBehavior", [behaviorData]);
-  return;
-}
-
 
 async function SceneConfig_preparePartContext(wrapped, partId, context, options) {
   context = await wrapped(partId, context, options);
@@ -605,12 +555,8 @@ export function register() {
       callback: _placeTileItem,
     }
   };
-  MODULE.api.regionScripts = { // TODO: turn these into region behaviors
+  MODULE.api.regionScripts = {
     ...(MODULE.api.regionScripts ?? {}),
-    "imageShow": {
-      "label": "Image Show",
-      "callback": CreateImageShow,
-    }
   }
 
   MODULE.defaults ??= {};

@@ -68,6 +68,7 @@
   "documentTypes": {
     "RegionBehavior": {
       "door": {},
+      "imageShow": {},
       "oneWayJump": {},
       "slidingIce": {}
     }

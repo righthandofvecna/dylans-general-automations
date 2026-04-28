@@ -41,6 +41,20 @@
             }
         },
         "RegionBehaviorConfig": {
+            "ImageShow": {
+                "imageSrc": {
+                    "label": "Image",
+                    "hint": "The image to display when the token interacts with this region."
+                },
+                "title": {
+                    "label": "Title",
+                    "hint": "The title shown in the image popup window."
+                },
+                "directions": {
+                    "label": "Facing Direction(s)",
+                    "hint": "The direction(s) the token must be facing to trigger the image display."
+                }
+            },
             "Door": {
                 "legend": "Door Destination",
                 "destinationScene": {
@@ -61,6 +75,7 @@
     "TYPES": {
         "RegionBehavior": {
             "dylans-general-automations.door": "Door",
+            "dylans-general-automations.imageShow": "Image Show",
             "dylans-general-automations.oneWayJump": "One-Way Jump",
             "dylans-general-automations.slidingIce": "Sliding Ice"
         }

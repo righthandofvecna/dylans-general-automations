@@ -1,0 +1,33 @@
+<div class="standard-form">
+  <div class="form-group">
+    <label>{{ localize "DGA.RegionBehaviorConfig.ImageShow.imageSrc.label" }}</label>
+    <div class="form-fields">
+      <file-picker type="imagevideo" name="system.imageSrc" value="{{region.system.imageSrc}}"></file-picker>
+    </div>
+    <p class="hint">{{ localize "DGA.RegionBehaviorConfig.ImageShow.imageSrc.hint" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "DGA.RegionBehaviorConfig.ImageShow.title.label" }}</label>
+    <div class="form-fields">
+      <input type="text" name="system.title" value="{{region.system.title}}" />
+    </div>
+    <p class="hint">{{ localize "DGA.RegionBehaviorConfig.ImageShow.title.hint" }}</p>
+  </div>
+  <div class="form-group">
+    <label>{{ localize "DGA.RegionBehaviorConfig.ImageShow.directions.label" }}</label>
+    <div class="form-fields">
+      <div class="directional-chooser">
+        <label class="upleft"><input type="checkbox" name="system.directions.upleft" {{checked region.system.directions.upleft}}><span><i class="fa-solid fa-arrow-up-left"></i></span></label>
+        <label class="up"><input type="checkbox" name="system.directions.up" {{checked region.system.directions.up}}><span><i class="fa-solid fa-arrow-up"></i></span></label>
+        <label class="upright"><input type="checkbox" name="system.directions.upright" {{checked region.system.directions.upright}}><span><i class="fa-solid fa-arrow-up-right"></i></span></label>
+        <label class="left"><input type="checkbox" name="system.directions.left" {{checked region.system.directions.left}}><span><i class="fa-solid fa-arrow-left"></i></span></label>
+        <span class="center"></span>
+        <label class="right"><input type="checkbox" name="system.directions.right" {{checked region.system.directions.right}}><span><i class="fa-solid fa-arrow-right"></i></span></label>
+        <label class="downleft"><input type="checkbox" name="system.directions.downleft" {{checked region.system.directions.downleft}}><span><i class="fa-solid fa-arrow-down-left"></i></span></label>
+        <label class="down"><input type="checkbox" name="system.directions.down" {{checked region.system.directions.down}}><span><i class="fa-solid fa-arrow-down"></i></span></label>
+        <label class="downright"><input type="checkbox" name="system.directions.downright" {{checked region.system.directions.downright}}><span><i class="fa-solid fa-arrow-down-right"></i></span></label>
+      </div>
+    </div>
+    <p class="hint">{{ localize "DGA.RegionBehaviorConfig.ImageShow.directions.hint" }}</p>
+  </div>
+</div>
