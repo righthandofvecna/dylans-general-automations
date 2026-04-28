@@ -15,14 +15,14 @@
                     "hint": "The sound made when a breakable tile is broken."
                 }
             },
-            "FieldMoves": {
+            "TileActions": {
                 "fragile": {
                     "label": "Fragile",
                     "hint": "Whether a tile marked as fragile can be broken by anyone."
                 }
             }
         },
-        "FieldMoves": {
+        "TileActions": {
             "Fragile": {
                 "Title": "Fragile Tile",
                 "CannotUse": "This tile appears to be fragile.",

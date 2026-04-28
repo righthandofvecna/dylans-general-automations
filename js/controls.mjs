@@ -307,7 +307,7 @@ function _placeTileItem(x, y) {
           </div>
           <div class="form-group">
             <div id="item-drop-zone" style="min-height: 100px; border: 2px dashed #ccc; padding: 10px; margin-bottom: 10px;">
-              <p class="drop-text">Drag and drop items or Pokémon actors here</p>
+              <p class="drop-text">Drag and drop items or actors here</p>
               <div id="dropped-items-list"></div>
             </div>
           </div>
@@ -504,7 +504,7 @@ async function CreateImageShow(regionConfig) {
   if (directions.length === 0) return;
 
   // create the document
-  const trainerData = {
+  const behaviorData = {
     type: "executeScript",
     name: `Show Image: ${title}`,
     flags: {
@@ -527,7 +527,7 @@ await game.modules.get("${MODULENAME}")?.api?.scripts?.Interact();
 new ImagePopout("${imageSrc}", { title: "${title}" }).render(true);`
     }
   };
-  await regionConfig.options.document.createEmbeddedDocuments("RegionBehavior", [trainerData]);
+  await regionConfig.options.document.createEmbeddedDocuments("RegionBehavior", [behaviorData]);
   return;
 }
 
@@ -612,7 +612,7 @@ export function register() {
       "callback": CreateImageShow,
     }
   }
-  
+
   MODULE.defaults ??= {};
   MODULE.defaults.signImg = `modules/${MODULENAME}/img/sign.png`;
   MODULE.defaults.itemImg = `modules/${MODULENAME}/img/treasure_chest.png`;

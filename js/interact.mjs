@@ -253,14 +253,14 @@ async function _checkForFragileTile(tile, token) {
   if (!tile?.flags?.[MODULENAME]?.fragile) return false;
   Interact();
   let confirm = token._breaking ?? await FooterDialogPrompt({
-    title: game.i18n.localize(`DGA.FieldMoves.Fragile.Title`),
-    content: game.i18n.localize(`DGA.FieldMoves.Fragile.CanUse`),
+    title: game.i18n.localize(`DGA.TileActions.Fragile.Title`),
+    content: game.i18n.localize(`DGA.TileActions.Fragile.CanUse`),
   });
   if (confirm) {
     Interact();
     await FooterDialogPrompt({
-      title: game.i18n.localize(`DGA.FieldMoves.Fragile.Title`),
-      content: game.i18n.format(`DGA.FieldMoves.Fragile.Used`, { name: token?.name ?? "you"}),
+      title: game.i18n.localize(`DGA.TileActions.Fragile.Title`),
+      content: game.i18n.format(`DGA.TileActions.Fragile.Used`, { name: token?.name ?? "you"}),
     });
     await socket.current().executeAsGM("triggerTileBreak", tile.uuid);
     token._breaking = true;
@@ -272,14 +272,14 @@ async function _checkForPushableTile(tile, token) {
   if (!tile?.flags?.[MODULENAME]?.pushable) return false;
   Interact();
   let confirm = token._pushing ?? await FooterDialogPrompt({
-    title: game.i18n.localize(`DGA.FieldMoves.Pushable.Title`),
-    content: game.i18n.localize(`DGA.FieldMoves.Pushable.CanUse`),
+    title: game.i18n.localize(`DGA.TileActions.Pushable.Title`),
+    content: game.i18n.localize(`DGA.TileActions.Pushable.CanUse`),
   });
   if (confirm) {
     Interact();
     await FooterDialogPrompt({
-      title: game.i18n.localize(`DGA.FieldMoves.Pushable.Title`),
-      content: game.i18n.format(`DGA.FieldMoves.Pushable.Used`, { name: token?.name ?? "you"}),
+      title: game.i18n.localize(`DGA.TileActions.Pushable.Title`),
+      content: game.i18n.format(`DGA.TileActions.Pushable.Used`, { name: token?.name ?? "you"}),
     });
     token._pushing = true;
   }
