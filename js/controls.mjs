@@ -3,69 +3,6 @@ import { UserPaintArea } from "./scripts.mjs";
 import { FooterDialogPrompt, FooterDialogConfirm } from "./dialog.mjs";
 
 
-/**
- * Apply the diagonal forbidding setting
- * @param {*} wrapped 
- * @param  {...any} args 
- */
-function Scene_prepareBaseData(wrapped, ...args) {
-  wrapped(...args);
-  const hasCombat = getCombatsForScene(this.uuid).length > 0;
-  if (this.getFlag(MODULENAME, "diagonals") && !(this.getFlag(MODULENAME, "outOfCombat") && hasCombat)) {
-    this.grid.diagonals = CONST.GRID_DIAGONALS.ILLEGAL;
-  }
-}
-
-
-/**
- * Add the puzzle button to the RegionConfig page
- * @param {*} regionConfig 
- * @param {*} html 
- */
-async function OnRenderRegionConfig(regionConfig, html) {
-  const behaviorControls = html.querySelector(".region-element.region-behavior .region-element-controls");
-  if (behaviorControls.querySelector(".region-control.puzzle-control")) return;
-  const puzzleLink = document.createElement("a");
-  puzzleLink.classList = "region-control puzzle-control";
-  puzzleLink.setAttribute("data-tooltip", "Automatic Behaviors");
-  puzzleLink.setAttribute("aria-label", "Automatic Behaviors");
-  const puzzleIcon = document.createElement("i");
-  puzzleIcon.classList = "fa-solid fa-puzzle-piece";
-  puzzleLink.appendChild(puzzleIcon);
-
-  behaviorControls.appendChild(puzzleLink);
-
-  const regionScripts = game.modules.get(MODULENAME).api.regionScripts;
-  puzzleLink.addEventListener("click", async function (event) {
-    event.preventDefault();
-    const options = Object.entries(regionScripts).reduce((o, [k, v])=>o+`<option value="${k}">${v.label}</option>`, "");
-    const option = await new Promise(async (resolve)=>{
-      foundry.applications.api.DialogV2.wait({
-        window: { title: 'Create Automatic Behavior' },
-        content: `
-            <div class="form-group">
-              <label for="behavior">Behavior</label>
-              <select name="behavior">${options}</select>
-            </div>
-        `,
-        buttons: [{
-          action: "ok",
-          label: "OK",
-          default: true,
-          callback: (event, button, dialog) => resolve(button.form.elements.behavior?.value ?? null),
-        }],
-        close: () => resolve(null),
-      }).catch(()=>{
-        resolve(null);
-      });
-    });
-
-    if (!option || !(option in regionScripts)) return;
-
-    await regionScripts[option].callback(regionConfig);
-  });
-}
-
 
 function OnGetSceneControlButtons(controls) {
   const tiles = controls["tiles"];//.find(c=>c.name === "tiles");
@@ -476,25 +413,7 @@ function _setupToolbarDragHandling() {
 }
 
 
-/* ------------------------------------------------------------------------- */
-/*                          Generic Region Controls                          */
-/* ------------------------------------------------------------------------- */
-
-
-
-async function SceneConfig_preparePartContext(wrapped, partId, context, options) {
-  context = await wrapped(partId, context, options);
-  if (partId === "puzzle") {
-    const scene = context.document;
-    context.flags = scene.flags[MODULENAME]
-    context.MODULENAME = MODULENAME;
-  }
-  return context;
-}
-
 export function register() {
-  libWrapper.register(MODULENAME, "Scene.prototype.prepareBaseData", Scene_prepareBaseData, "WRAPPER");
-  Hooks.on("renderRegionConfig", OnRenderRegionConfig);
   if (early_isGM()) {
     Hooks.on("getSceneControlButtons", OnGetSceneControlButtons);
     libWrapper.register(MODULENAME, "foundry.canvas.layers.TilesLayer.prototype._onClickLeft2", TilesLayer_onClickLeft2, "WRAPPER");
@@ -505,23 +424,7 @@ export function register() {
     // libWrapper.register(MODULENAME, "foundry.canvas.layers.RegionLayer.prototype._onClickLeft2", RegionLayer_onClickLeft2, "WRAPPER");
     _setupToolbarDragHandling();
   }
-
-  // scene config controls
-  const SceneConfig = foundry.applications.sheets.SceneConfig;
-  SceneConfig.PARTS.puzzle = {
-    template: `modules/${MODULENAME}/templates/scene-settings-page.hbs`
-  };
-  const footer = SceneConfig.PARTS.footer;
-  delete SceneConfig.PARTS.footer;
-  SceneConfig.PARTS.footer = footer;
-
-  SceneConfig.TABS.sheet.tabs.push({
-    id: "puzzle",
-    icon: "fa-solid fa-puzzle-piece",
-  });
-  libWrapper.register(MODULENAME, "foundry.applications.sheets.SceneConfig.prototype._preparePartContext", SceneConfig_preparePartContext, "WRAPPER");
   
-
   const MODULE = game.modules.get(MODULENAME);
   MODULE.api ??= {};
   MODULE.api.tileTools = {
