@@ -1,8 +1,10 @@
 import { MODULENAME } from "../utils.mjs";
+import * as messageSigning from "./message-signing.mjs";
 import * as reinforcements from "./reinforcements.mjs";
 
 
 const FEATURES = [
+  ["messageSigning", messageSigning],
   ["reinforcements", reinforcements],
 ];
 
