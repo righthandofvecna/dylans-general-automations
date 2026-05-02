@@ -2,6 +2,7 @@
 import { MODULENAME, DATNAME } from "./utils.mjs";
 import * as settings from "./settings.mjs";
 import * as audio from "./audio.mjs";
+import * as components from "./components.mjs";
 import * as controls from "./controls.mjs";
 import * as dialog from "./dialog.mjs";
 import * as placeables from "./placeables/_index.mjs";
@@ -14,6 +15,7 @@ import * as socket from "./socket.mjs";
 const SUBMODULES = [
   ["settings", settings],
   ["audio", audio],
+  ["components", components],
   ["controls", controls],
   ["dialog", dialog],
   ["placeables", placeables],

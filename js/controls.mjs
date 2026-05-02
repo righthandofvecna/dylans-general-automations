@@ -140,85 +140,13 @@ function _placeTileItem(x, y) {
             custom.value = value;
           }
         });
-
-        //
-        // set up drag and drop area
-        //
-        const dropZone = html.find('#item-drop-zone')[0];
-        const itemsList = html.find('#dropped-items-list');
-        const items = [];
-
-        // Set up drag and drop handlers
-        dropZone.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          dropZone.style.backgroundColor = '#f0f0f0';
-        });
-
-        dropZone.addEventListener('dragleave', (e) => {
-          e.preventDefault();
-          dropZone.style.backgroundColor = 'transparent';
-        });
-
-        dropZone.addEventListener('drop', async (e) => {
-          e.preventDefault();
-          dropZone.style.backgroundColor = 'transparent';
-          
-          const data = TextEditor.getDragEventData(e);
-          const item = await (async ()=>{
-            let item = await fromUuid(data.uuid);
-            if (!item) return null;
-            if (item instanceof RollTable) {
-              let result = await item.roll();
-              if (result.results.length != 1) {
-                return null;
-              } else {
-                let r = result.results[0];
-                let uuid = "";
-                if (r.type == "pack") {
-                  uuid = `Compendium.${r.documentCollection}.Item.${r.documentId}`;
-                } else {
-                  return null;
-                }
-                item = await fromUuid(uuid);
-              }
-            }
-            return item;
-          })()
-          if (!item) return;
-
-          items.push(item.uuid);
-          itemsList.data('items', items);
-
-          // Update visual list
-          const itemElement = document.createElement('div');
-          itemElement.innerHTML = `
-            <div class="item" style="display: flex; align-items: center; margin: 5px 0;">
-              <img src="${item.img}" width="24" height="24" style="margin-right: 8px;">
-              <span>${item.name}</span>
-              <a class="remove-item" style="margin-left: auto;"><i class="fas fa-times"></i></a>
-            </div>
-          `;
-
-          // Add remove handler
-          itemElement.querySelector('.remove-item').addEventListener('click', () => {
-            const index = items.indexOf(item);
-            if (index > -1) {
-              items.splice(index, 1);
-              itemsList.data('items', items);
-              itemElement.remove();
-            }
-          });
-
-          itemsList.append(itemElement);
-        });
       }
     }
 
     const SOUNDS = game.modules.get(MODULENAME).api.SOUNDS ?? {};
-    
-    ItemDialog.wait({
-      window: { title: 'Items / Actor Contained' },
-      content: `
+
+    const content = document.createElement('div');
+    content.innerHTML = `
           <div class="form-group">
             <label>Visible Distance</label>
             <div class="form-fields">
@@ -243,12 +171,13 @@ function _placeTileItem(x, y) {
             </div>
           </div>
           <div class="form-group">
-            <div id="item-drop-zone" style="min-height: 100px; border: 2px dashed #ccc; padding: 10px; margin-bottom: 10px;">
-              <p class="drop-text">Drag and drop items or actors here</p>
-              <div id="dropped-items-list"></div>
-            </div>
+            <item-drop-zone></item-drop-zone>
           </div>
-      `,
+    `;
+
+    ItemDialog.wait({
+      window: { title: 'Items / Actor Contained' },
+      content,
       buttons: [{
         action: "ok",
         label: "OK",
@@ -256,7 +185,7 @@ function _placeTileItem(x, y) {
         callback: (event, button, dialog) => {
           const visibleDistance = button.form.elements.visibleDistance?.value ? parseInt(button.form.elements.visibleDistance.value) : null;
           const interactionSound = button.form.elements.interactionSound?.value ?? null;
-          const items = $(dialog.element).find('#dropped-items-list').data('items') || [];
+          const items = dialog.element.querySelector('item-drop-zone').items;
           resolve({items, interactionSound, visibleDistance});
         },
       }],
