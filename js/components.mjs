@@ -44,7 +44,14 @@ export class ItemDropZone extends HTMLElement {
       const item = await this.#resolveItem(data);
       if (!item) return;
 
-      if (!(item.documentName == "RollTable" && this.allowRolltables) && !this.allowed.includes(item.documentName)) {
+      if (!this.allowed.includes("RollTable") && item.documentName === "RollTable" && this.allowRolltables) {
+        // check that all the rollTable results are of an allowed type
+        const allResults = await Promise.all(item.results.contents.map(r => fromUuid(r.documentUuid)));
+        if (!allResults.every(i => this.allowed.includes(i.documentName))) {
+          ui.notifications.warn(`Only RollTables with results of type ${allowedTypes} can be dropped here.`);
+          return;
+        }
+      } else if (!this.allowed.includes(item.documentName)) {
         ui.notifications.warn(`Only ${allowedTypes} can be dropped here.`);
         return;
       }
