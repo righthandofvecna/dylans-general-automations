@@ -171,6 +171,7 @@ function _placeTileItem(x, y) {
             </div>
           </div>
           <div class="form-group">
+            <label>Items / Actors to Award</label>
             <item-drop-zone></item-drop-zone>
           </div>
     `;
