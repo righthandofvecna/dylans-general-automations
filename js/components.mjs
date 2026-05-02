@@ -1,3 +1,5 @@
+import { naturalJoin } from "./utils.mjs";
+
 /**
  * A custom element that renders a drag-and-drop zone for Foundry items/actors.
  *
@@ -13,9 +15,10 @@ export class ItemDropZone extends HTMLElement {
   #itemsList = null;
 
   connectedCallback() {
+    const allowedTypes = naturalJoin(this.allowed.map(type => `${type}s`), "or");
     this.innerHTML = `
       <div class="drop-zone" style="min-height: 100px; border: 2px dashed #ccc; padding: 10px; margin-bottom: 10px;">
-        <p class="drop-text">Drag and drop items or actors here</p>
+        <p class="drop-text">Drag and drop ${allowedTypes} here</p>
         <div class="items-list"></div>
       </div>
     `;
@@ -37,13 +40,26 @@ export class ItemDropZone extends HTMLElement {
       e.preventDefault();
       this.#dropZone.style.backgroundColor = 'transparent';
 
-      const data = TextEditor.getDragEventData(e);
+      const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(e);
       const item = await this.#resolveItem(data);
       if (!item) return;
+
+      if (!(item.documentName == "RollTable" && this.allowRolltables) && !this.allowed.includes(item.documentName)) {
+        ui.notifications.warn(`Only ${allowedTypes} can be dropped here.`);
+        return;
+      }
 
       this.#items.push(item.uuid);
       this.#renderItem(item);
     });
+  }
+
+  get allowed() {
+    return this.getAttribute('allowed')?.split(',').map(s => s.trim()) ?? ["Item", "Actor"];
+  }
+
+  get allowRolltables() {
+    return this.hasAttribute('allow-rolltables');
   }
 
   /** Returns a copy of the current list of dropped item UUIDs. */
@@ -52,22 +68,22 @@ export class ItemDropZone extends HTMLElement {
   }
 
   async #resolveItem(data) {
-    let item = (async () => {
+    let item = await (async () => {
       if (!data?.uuid && data?.data?._id) {
         // handle world objects that don't return a uuid for some reason
         if (data.type === "Item") return game.items.get(data.data._id);
         if (data.type === "Actor") return game.actors.get(data.data._id);
+        if (data.type === "RollTable") return game.tables.get(data.data._id);
         return null;
       }
       return await fromUuid(data.uuid);
     })();
     if (!item) return null;
-    if (item instanceof RollTable) {
+    if (item.documentName === "RollTable" && !this.allowRolltables) {
       const result = await item.roll();
       if (result.results.length !== 1) return null;
       const r = result.results[0];
-      if (r.type !== "pack") return null;
-      item = await fromUuid(`Compendium.${r.documentCollection}.Item.${r.documentId}`);
+      return fromUuid(r.documentUuid);
     }
     return item;
   }

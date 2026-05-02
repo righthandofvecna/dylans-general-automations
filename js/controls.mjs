@@ -170,7 +170,7 @@ function _placeTileItem(x, y) {
               <file-picker class="custom-interaction" type="audio" value=""></file-picker>
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group-stacked">
             <label>Items / Actors to Award</label>
             <item-drop-zone></item-drop-zone>
           </div>

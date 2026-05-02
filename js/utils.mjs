@@ -161,3 +161,12 @@ export function getGridDirectionFromAngle(angle) {
 		case 7: return CONST.MOVEMENT_DIRECTIONS.DOWN_RIGHT;
 	}
 }
+
+
+export function naturalJoin(arr, joiner) {
+	if (arr.length === 0) return "";
+	if (arr.length === 1) return arr[0];
+	if (arr.length === 2) return `${arr[0]} ${joiner} ${arr[1]}`;
+	return `${arr.slice(0, -1).join(", ")}${joiner} ${arr.slice(-1)}`;
+}
+
