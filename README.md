@@ -17,6 +17,7 @@ This module adds support for:
 - Sliding Ice, One-Way Jumps, and scene-to-scene doors (usable through Foundry v13's "Regions" tool)
 - Tile Scripts, which are scripts that run when the user interacts with a tile. A tool for quickly placing signs is also included.
 - Token Scripts, which are scripts that run when the user interacts with a token. You can also add dialogue to a token!
+- Reinforcements tiles: Tiles that specify spawn points for actors
 - Interacting with things like Item Piles with the Enter button (configurable), or opening unlocked doors with Enter
 
 ## Usage
