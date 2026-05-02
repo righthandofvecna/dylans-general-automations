@@ -1,4 +1,4 @@
-import { MODULENAME, early_isGM, sleep, snapToGrid, listenFilepickerChange, getCombatsForScene } from "./utils.mjs";
+import { MODULENAME, early_isGM, sleep, snapToGrid, listenFilepickerChange, getCombatsForScene, titleCase } from "./utils.mjs";
 import { UserPaintArea } from "./scripts.mjs";
 import { FooterDialogPrompt, FooterDialogConfirm } from "./dialog.mjs";
 
@@ -231,6 +231,87 @@ function _placeTileItem(x, y) {
   });
 }
 
+function _placeTileReinforcementsPlatform(x, y) {
+  (new Promise(async (resolve, reject)=>{
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <div class="form-group-stacked">
+        <label for="text">Reinforcements to Spawn</label>
+        <item-drop-zone allowed="Actor" allow-rolltables></item-drop-zone>
+      </div>
+      <div class="form-group">
+        <label>Trigger</label>
+        <div class="form-fields">
+          <select name="trigger" data-dtype="String">
+            <option value="script" default>Via Script</option>
+            <option value="scene">Scene Creation</option>
+            <option value="round">Round End</option>
+          </select>
+        </div>
+      </div>
+    `
+    foundry.applications.api.DialogV2.wait({
+      window: { title: 'Actors To Spawn' },
+      content,
+      buttons: [{
+        action: "ok",
+        label: "OK",
+        default: true,
+        callback: (event, button, dialog) => {
+          const reinforcements = dialog.element.querySelector('item-drop-zone').items;
+          const trigger = dialog.element.querySelector('select[name="trigger"]').value;
+          if (reinforcements.length === 0) {
+            ui.notifications.warn("No reinforcements were added. Please add at least one reinforcement to spawn.");
+            reject("No reinforcements added");
+          }
+          resolve({ reinforcements, trigger });
+        },
+      }],
+      close: () => resolve(null),
+    }).catch(()=>{
+      resolve(null);
+    });
+  })).then(async ({ reinforcements, trigger })=>{
+    if (!reinforcements) return;
+    const reinforcementObjs = (await Promise.all(reinforcements.map(async uuid => {
+      const obj = await fromUuid(uuid);
+      if (!obj) return [];
+      if (obj.documentName === "RollTable") {
+        const results = await Promise.all(obj.results.contents.map(rtr => fromUuid(rtr.documentUuid)));
+        return results.filter(r => r?.documentName === "Actor");
+      }
+      return [obj];
+    }))).flatMap(r=>r);
+
+    const dispositions = new Set(reinforcementObjs.map(r => r?.prototypeToken?.disposition ?? 0));
+    dispositions.delete(CONST.TOKEN_DISPOSITIONS.SECRET);
+    const disposition = (()=>{
+      if (dispositions.size !== 1) return "mixed";
+      const disp = dispositions.values().next().value;
+      if (disp === CONST.TOKEN_DISPOSITIONS.FRIENDLY) return "friendly";
+      if (disp === CONST.TOKEN_DISPOSITIONS.NEUTRAL) return "neutral";
+      if (disp === CONST.TOKEN_DISPOSITIONS.HOSTILE) return "hostile";
+      return "mixed";
+    })();
+    return canvas.scene.createEmbeddedDocuments("Tile", [{
+      [`flags.${MODULENAME}.reinforcements`]: {
+        uuids: reinforcements,
+        trigger,
+        enabled: true,
+      },
+      name: `${titleCase(disposition)} Reinforcements Platform`,
+      hidden: true,
+      width: canvas.grid.sizeX,
+      height: canvas.grid.sizeY,
+      texture: {
+        src: `modules/${MODULENAME}/img/reinforcements/rf-${disposition}-all.svg`,
+      },
+      x,
+      y,
+    }])
+  }).catch((err)=>console.error(`[${MODULENAME}]: Failed to place Reinforcements Platform tile`, err));
+}
+
 //
 // Generic Placement Logic
 //
@@ -244,7 +325,7 @@ let _tilePaintDragState = null;
 
 function TilesLayer_onClickLeft2(wrapper, event) {
   wrapper(event);
-  const { x, y } = snapToGrid(canvas.mousePosition, canvas.grid);
+  const { x, y } = snapToGrid(canvas.mousePosition, canvas.grid, { isTile: true });
   _handleTilePlacement(game.activeTool, x, y);
 }
 
@@ -253,7 +334,7 @@ function TilesLayer_onDragLeftStart(wrapper, event) {
   const requiresConfig = MODULE.api.tileTools?.[game.activeTool]?.requiresConfig ?? true;
   if (requiresConfig) return wrapper(event);
   const origin = event.interactionData?.origin ?? canvas.mousePosition;
-  const snapped = snapToGrid(origin, canvas.grid);
+  const snapped = snapToGrid(origin, canvas.grid, { isTile: true });
   if (!requiresConfig) {
     _tilePaintDragState = {
       tool: game.activeTool,
@@ -271,7 +352,7 @@ function TilesLayer_onDragLeftStart(wrapper, event) {
 
 function TilesLayer_onDragLeftMove(wrapper, event) {
   if (!_tilePaintDragState || _tilePaintDragState.isDialogTool) return wrapper(event);
-  const snapped = snapToGrid(canvas.mousePosition, canvas.grid);
+  const snapped = snapToGrid(canvas.mousePosition, canvas.grid, { isTile: true });
   const cellKey = `${snapped.x},${snapped.y}`;
   if (cellKey !== _tilePaintDragState.lastCell) {
     _tilePaintDragState.lastCell = cellKey;
@@ -334,7 +415,7 @@ function _setupToolbarDragHandling() {
 
           canvas.tiles.activate({ tool: toolName });
           const worldPoint = _clientToCanvasWorld(ev.clientX, ev.clientY);
-          const snapped = snapToGrid(worldPoint, canvas.grid);
+          const snapped = snapToGrid(worldPoint, canvas.grid, { isTile: true });
           _handleTilePlacement(toolName, snapped.x, snapped.y);
         }, { once: true, capture: true });
       });
@@ -386,7 +467,14 @@ export function register() {
       title: "Place Item",
       requiresConfig: true,
       callback: _placeTileItem,
-    }
+    },
+    "reinforcements-platform": {
+      icon: "fa-solid fa-person-from-portal",
+      name: "reinforcements-platform",
+      title: "Place Reinforcements Platform",
+      requiresConfig: true,
+      callback: _placeTileReinforcementsPlatform,
+    },
   };
   MODULE.api.regionScripts = {
     ...(MODULE.api.regionScripts ?? {}),

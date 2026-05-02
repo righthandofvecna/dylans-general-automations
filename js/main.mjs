@@ -10,6 +10,7 @@ import * as configs from "./configs/index.mjs";
 import * as scripts from "./scripts.mjs";
 import * as regionEvents from "./region-events.mjs";
 import * as interact from "./interact.mjs";
+import * as features from "./features/_index.mjs";
 import * as socket from "./socket.mjs";
 
 const SUBMODULES = [
@@ -23,6 +24,7 @@ const SUBMODULES = [
   ["scripts", scripts],
   ["regionEvents", regionEvents],
   ["interact", interact],
+  ["features", features],
   ["socket", socket],
 ];
 

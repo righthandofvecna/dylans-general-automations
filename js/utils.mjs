@@ -22,13 +22,13 @@ export async function sleep(ms) {
 	return new Promise((resolve)=>setTimeout(resolve, ms))
 }
 
-export function snapToGrid({ x, y }, grid) {
+export function snapToGrid({ x, y }, grid, { isTile=false }={}) {
 	const IS_V14 = foundry.utils.isNewerVersion(game.version, "14.351");
 	const point = {
 		x: Math.floor(x / grid.sizeX) * grid.sizeX,
 		y: Math.floor(y / grid.sizeY) * grid.sizeY,
 	}
-	if (IS_V14) {
+	if (IS_V14 && isTile) {
 		point.x += grid.sizeX / 2;
 		point.y += grid.sizeY / 2;
 	}
@@ -176,3 +176,6 @@ export function naturalJoin(arr, joiner) {
 	return `${arr.slice(0, -1).join(", ")}${joiner} ${arr.slice(-1)}`;
 }
 
+export function titleCase(str) {
+	return str.split(" ").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+}
