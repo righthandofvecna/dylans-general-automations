@@ -6,14 +6,12 @@ import { MODULENAME } from "../utils.mjs";
 // whose holder is unconditionally trusted (e.g., module developer overrides).
 const GLOBAL_TRUSTED_KEYS = [
   {
-    "publicKey":{
-      "crv": "P-256",
-      "ext":true,
-      "key_ops":["verify"],
-      "kty":"EC",
-      "x":"dIlr1-vErO0n0Uuzd3zECtDTx0Mxu4By8zCFRejF_3g",
-      "y":"ZvzJSWgXQqaogY5uCXqzWf7gCIIGL8a0yF8-OAHHb0w"
-    }
+    "crv": "P-256",
+    "ext": true,
+    "key_ops": ["verify"],
+    "kty": "EC",
+    "x": "xojUVDwlqpyKA_R5FbendwGCbtTbdRxuboAX9MeeK0s",
+    "y": "HatTqYuP5Lfa-tuY8iIPKrmiV0UwfqJLzUtkYP5rlRI"
   },
 ];
 
