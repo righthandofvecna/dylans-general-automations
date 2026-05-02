@@ -120,7 +120,7 @@ function TokenHasDirection(token, directions) {
 /**
  * A template for target-painting an area
  */
-class PainterTemplate extends MeasuredTemplate {
+class PainterTemplate extends foundry.canvas.placeables.MeasuredTemplate {
   #initialLayer;
   #events;
   #moveTime;
