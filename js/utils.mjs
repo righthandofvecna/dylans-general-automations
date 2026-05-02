@@ -23,10 +23,16 @@ export async function sleep(ms) {
 }
 
 export function snapToGrid({ x, y }, grid) {
-	return {
+	const IS_V14 = foundry.utils.isNewerVersion(game.version, "14.351");
+	const point = {
 		x: Math.floor(x / grid.sizeX) * grid.sizeX,
 		y: Math.floor(y / grid.sizeY) * grid.sizeY,
 	}
+	if (IS_V14) {
+		point.x += grid.sizeX / 2;
+		point.y += grid.sizeY / 2;
+	}
+	return point;
 }
 
 export function centerTokenMovement(token, movement) {
