@@ -79,5 +79,8 @@
             "dylans-general-automations.oneWayJump": "One-Way Jump",
             "dylans-general-automations.slidingIce": "Sliding Ice"
         }
+    },
+    "MACRO": {
+        "InvalidSignature": "The signature of this tile macro is invalid. This macro will not be executed."
     }
 }

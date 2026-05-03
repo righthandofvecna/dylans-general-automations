@@ -68,6 +68,27 @@ function TokenConfig_attachPartListeners(wrapped, partId, htmlElement, options) 
   }
 }
 
+
+
+
+/**
+ * @inheritDoc
+ * 
+ * Handles auto-signing the script content
+ */
+async function TokenConfig_processSubmitData(wrapped, event, form, submitData) {
+  const oldScript = this.document?.flags?.[MODULENAME]?.script;
+  const newScript = submitData?.flags?.[MODULENAME]?.script;
+  if (newScript !== oldScript) {
+    // sign it!
+    const { signMessage } = game.modules.get(MODULENAME).api.crypto;
+    const signature = JSON.stringify(await signMessage(newScript));
+    submitData.flags[MODULENAME].signature = signature || "";
+  }
+  return wrapped(event, form, submitData);
+}
+
+
 export function register() {
   const TokenConfig = foundry.applications.sheets.TokenConfig;
   TokenConfig.PARTS.puzzle = {
@@ -82,4 +103,5 @@ export function register() {
   });
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TokenConfig.prototype._preparePartContext", TokenConfig_preparePartContext, "WRAPPER");
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TokenConfig.prototype._attachPartListeners", TokenConfig_attachPartListeners, "WRAPPER");
+  libWrapper.register(MODULENAME, "foundry.applications.sheets.TokenConfig.prototype._processSubmitData", TokenConfig_processSubmitData, "WRAPPER");
 }

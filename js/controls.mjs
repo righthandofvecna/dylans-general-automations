@@ -87,14 +87,18 @@ function _placeTileSign(x, y) {
     }).catch(()=>{
       resolve(null);
     });
-  })).then((text)=>{
+  })).then(async (text)=>{
     if (!text) return;
     const DefaultInteractionSound = game.modules.get(MODULENAME).defaults?.interactionSound;
     const DefaultSignImg = game.modules.get(MODULENAME).defaults?.signImg;
+    const script = `game.modules.get("${MODULENAME}")?.api?.scripts?.FooterDialogPrompt({ content: ${JSON.stringify(text)}});`;
+    const { signMessage } = game.modules.get(MODULENAME).api.crypto;
+    const signature = JSON.stringify(await signMessage(script));
     canvas.scene.createEmbeddedDocuments("Tile", [{
       [`flags.${MODULENAME}.solid`]: true,
       [`flags.${MODULENAME}.interactionSound`]: DefaultInteractionSound,
-      [`flags.${MODULENAME}.script`]: `game.modules.get("${MODULENAME}")?.api?.scripts?.FooterDialogPrompt({ content: ${JSON.stringify(text)}});`,
+      [`flags.${MODULENAME}.script`]: script,
+      [`flags.${MODULENAME}.signature`]: signature,
       width: canvas.grid.sizeX,
       height: canvas.grid.sizeY,
       texture: {
@@ -109,6 +113,7 @@ function _placeTileSign(x, y) {
 function _placeTileItem(x, y) {
   const persistedToolSettings = game.settings.get(MODULENAME, "persistedToolSettings")?.placeTileItem ?? {};
   const DefaultItemImg = game.modules.get(MODULENAME).defaults?.itemImg;
+  const { signMessage } = game.modules.get(MODULENAME).api.crypto;
   (new Promise(async (resolve, reject)=>{
     class ItemDialog extends foundry.applications.api.DialogV2 {
       _onRender(context, options) {
@@ -204,11 +209,14 @@ function _placeTileItem(x, y) {
       itemTexts[itemTexts.length - 2] += " and " + itemTexts.pop();
     }
     const message = `You found ${itemTexts.join(", ")}!`;
+    const script = `const items = [${items.reduce((l,i)=>l+'"'+i+'",', "")}];\ngame.modules.get("${MODULENAME}")?.api?.scripts?.PickUpItem?.(self, actor, items, ${JSON.stringify(message)});`;
+    const signature = JSON.stringify(await signMessage(script));
     canvas.scene.createEmbeddedDocuments("Tile", [{
       [`flags.${MODULENAME}.solid`]: true,
       [`flags.${MODULENAME}.interactionSound`]: interactionSound ?? null,
       [`flags.${MODULENAME}.visibleDistance`]: visibleDistance ?? null,
-      [`flags.${MODULENAME}.script`]: `const items = [${items.reduce((l,i)=>l+'"'+i+'",', "")}];\ngame.modules.get("${MODULENAME}")?.api?.scripts?.PickUpItem?.(self, actor, items, ${JSON.stringify(message)});`,
+      [`flags.${MODULENAME}.script`]: script,
+      [`flags.${MODULENAME}.signature`]: signature,
       width: canvas.grid.sizeX,
       height: canvas.grid.sizeY,
       texture: {

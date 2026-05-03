@@ -7,8 +7,15 @@ async function runAsMacro(self, {speaker, actor, token, ...scope}={}) {
   // get the command
   const command = self?.flags?.[MODULENAME]?.script;
   const executeAsGM = self?.flags?.[MODULENAME]?.scriptGm;
+  const signature = JSON.parse(self?.flags?.[MODULENAME]?.signature || "null");
 
   if (!command) return;
+
+  const { verifyMessage } = game.modules.get(MODULENAME).api.crypto;
+  if (!signature || !(await verifyMessage(command, signature))) {
+    ui.notifications.error("MACRO.InvalidSignature", { localize: true });
+    return;
+  }
 
   // Add variables to the evaluation scope
   speaker = speaker || ChatMessage.implementation.getSpeaker({actor, token});

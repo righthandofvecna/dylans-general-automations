@@ -23,7 +23,6 @@ async function TileConfig_preparePartContext(wrapped, partId, context, options) 
     }
     context.dga = dga;
     context.MODULENAME = MODULENAME;
-    console.log("Prepared tile config context", MODULE.api.BooleanTileSettings, dga);
   }
   return context;
 }
@@ -62,6 +61,23 @@ function TileConfig_attachPartListeners(wrapped, partId, htmlElement, options) {
 }
 
 
+/**
+ * @inheritDoc
+ * 
+ * Handles auto-signing the script content
+ */
+async function TileConfig_processSubmitData(wrapped, event, form, submitData) {
+  const oldScript = this.document?.flags?.[MODULENAME]?.script;
+  const newScript = submitData?.flags?.[MODULENAME]?.script;
+  if (newScript !== oldScript) {
+    // sign it!
+    const { signMessage } = game.modules.get(MODULENAME).api.crypto;
+    const signature = JSON.stringify(await signMessage(newScript));
+    submitData.flags[MODULENAME].signature = signature || "";
+  }
+  return wrapped(event, form, submitData);
+}
+
 
 export function register() {
   const TileConfig = foundry.applications.sheets.TileConfig;
@@ -78,6 +94,7 @@ export function register() {
   });
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TileConfig.prototype._preparePartContext", TileConfig_preparePartContext, "WRAPPER");
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TileConfig.prototype._attachPartListeners", TileConfig_attachPartListeners, "WRAPPER");
+  libWrapper.register(MODULENAME, "foundry.applications.sheets.TileConfig.prototype._processSubmitData", TileConfig_processSubmitData, "WRAPPER");
 
   const MODULE = game.modules.get(MODULENAME);
   MODULE.api ??= {};
