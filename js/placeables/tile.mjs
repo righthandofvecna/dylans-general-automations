@@ -9,8 +9,6 @@ function Tile_initializeEdges({deleted=false}={}) {
     return;
   }
 
-  console.log("Initializing edges for tile", this);
-
   if (!this?.document?.flags?.[MODULENAME]?.solid) return;
 
   const polygon = this?.bounds?.toPolygon()?.points;
