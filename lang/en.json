@@ -66,6 +66,16 @@
                     "hint": "The position in the destination scene that tokens will be teleported to when they enter this door."
                 },
                 "pickLocation": "Pick Location"
+            },
+            "AnimationOverlay": {
+                "animationSrc": {
+                    "label": "Spritesheet JSON",
+                    "hint": "Path to a PIXI spritesheet JSON file (e.g. modules/my-module/img/anim.json). The JSON must contain an \"animations\" block with at least one entry."
+                },
+                "fps": {
+                    "label": "Frames Per Second",
+                    "hint": "Playback speed of the animation (1–60 fps). All clients derive the current frame from wall-clock time, keeping them in sync without any network traffic."
+                }
             }
         }
     },
@@ -77,7 +87,8 @@
             "dylans-general-automations.door": "Door",
             "dylans-general-automations.imageShow": "Image Show",
             "dylans-general-automations.oneWayJump": "One-Way Jump",
-            "dylans-general-automations.slidingIce": "Sliding Ice"
+            "dylans-general-automations.slidingIce": "Sliding Ice",
+            "dylans-general-automations.animationOverlay": "Animation Overlay"
         }
     },
     "MACRO": {

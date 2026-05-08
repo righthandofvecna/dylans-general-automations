@@ -70,7 +70,8 @@
       "door": {},
       "imageShow": {},
       "oneWayJump": {},
-      "slidingIce": {}
+      "slidingIce": {},
+      "animationOverlay": {}
     }
   },
   "socket": true,
