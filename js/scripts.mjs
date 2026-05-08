@@ -12,7 +12,7 @@ import { FooterDialogPrompt, FooterDialogConfirm } from "./dialog.mjs";
  * @param {*} items 
  * @param {*} message 
  */
-async function TriggerPickUpItem(tileUuid, actorUuid, itemUuids) {
+async function TriggerPickUpItem(tileUuid, actorUuid, itemUuids, userId) {
   const tile = await fromUuid(tileUuid);
   if (!tile) throw new Error("Tile not found — already picked up.");
   await tile.delete(); // Acts as mutex: if already deleted, throws and awards are skipped
@@ -27,15 +27,34 @@ async function TriggerPickUpItem(tileUuid, actorUuid, itemUuids) {
     ...(itemObjects.length ? [AwardItems(actor, itemObjects)] : []),
     ...actorObjects.map(actorObj => AssignActorToActor(actorObj, actor)),
   ]);
+
+  if (userId && game.settings.get(MODULENAME, "fairPickup")) {
+    const counts = { ...game.settings.get(MODULENAME, "pickupCounts") };
+    counts[userId] = (counts[userId] ?? 0) + 1;
+    await game.settings.set(MODULENAME, "pickupCounts", counts);
+  }
 }
 
 async function PickUpItem(tile, actor, items, message) {
+  if (game.settings.get(MODULENAME, "fairPickup") && !game.user.isGM) {
+    const counts = game.settings.get(MODULENAME, "pickupCounts");
+    const myCount = counts[game.user.id] ?? 0;
+    const otherActivePlayers = game.users.filter(u => u.active && !u.isGM && u.id !== game.user.id);
+    if (otherActivePlayers.length > 0) {
+      const minOtherCount = Math.min(...otherActivePlayers.map(u => counts[u.id] ?? 0));
+      if (myCount > minOtherCount) {
+        FooterDialogPrompt({ content: "You found something, but another player hasn't had a chance to pick up yet — wait for them to catch up first!" });
+        return;
+      }
+    }
+  }
+
   FooterDialogPrompt({ content: message, callback: async ()=>{
     try {
       if (game.user.isGM) {
-        await TriggerPickUpItem(tile.uuid, actor.uuid, items);
+        await TriggerPickUpItem(tile.uuid, actor.uuid, items, game.user.id);
       } else {
-        await socket.current().executeAsGM("pickUpItem", tile.uuid, actor.uuid, items);
+        await socket.current().executeAsGM("pickUpItem", tile.uuid, actor.uuid, items, game.user.id);
       }
     } catch(e) {
       console.log("Error picking up item:", e);

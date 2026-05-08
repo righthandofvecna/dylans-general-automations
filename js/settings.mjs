@@ -52,6 +52,25 @@ export function register() {
     hint: "Enable debug mode for additional logging and diagnostics."
 	});
 
+  game.settings.register(MODULENAME, "fairPickup", {
+    name: "Fair Item Pickup",
+    hint: "Prevent a player from picking up items if they have already picked up more than any other active non-GM player.",
+    default: false,
+    type: Boolean,
+    scope: "world",
+    config: true,
+    requiresReload: false,
+  });
+
+  game.settings.register(MODULENAME, "pickupCounts", {
+    name: "Pickup Counts",
+    default: {},
+    type: Object,
+    scope: "world",
+    config: false,
+    requiresReload: false,
+  });
+
 
 
 	const MODULE = game.modules.get(MODULENAME);
