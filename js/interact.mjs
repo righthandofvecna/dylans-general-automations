@@ -78,7 +78,7 @@ function getFacingTokens(token, filter=()=>true) {
   const { x: tx, y: ty } = canvas.grid.getCenterPoint(tObj.center);
   const { sizeX, sizeY } = canvas.grid;
   const tokenBounds = { x: tx, y: ty, w: Math.max(tObj.w, sizeX), h: Math.max(tObj.h, sizeY), r: token.rotation};
-  const requireFacing = tObj?.hasFacing ?? false;
+  const requireFacing = tObj?.hasFacing ?? false; // TODO define hasFacing if dylans animated tokens isn't installed
 
   return game.canvas.tokens.placeables.filter(o=>{
       if (o === tObj || !filter(o)) return false;
