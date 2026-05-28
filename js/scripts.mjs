@@ -402,6 +402,6 @@ export function register() {
   socket.registerSocket("deleteTile", DeleteTile);
   socket.registerSocket("triggerTileBreak", async (tileId)=>TriggerTileBreak(await fromUuid(tileId)));
 
-  socket.registerSocket("showPopup", async (username, message)=>ShowPopup(await fromUuid(tileId)));
+  socket.registerSocket("showPopup", ShowPopup);
   socket.registerSocket("pickUpItem", TriggerPickUpItem);
 }
