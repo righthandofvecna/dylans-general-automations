@@ -35,7 +35,7 @@
       </div>
     </div>
     {{#if dga.permissions.MACRO_SCRIPT}}
-    <fieldset>
+    <fieldset class="dga-script-editor">
       <legend>{{ localize "DGA.Fields.InteractionScript.label" }}</legend>
       <label>Execute as GM? <input type="checkbox" name="flags.{{MODULENAME}}.scriptGm" {{#if dga.scriptGm}}checked{{/if}}></label>
       {{formInput dga.scriptField value=dga.script language="javascript" elementType="code-mirror"

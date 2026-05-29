@@ -35,3 +35,11 @@
   background-color: var(--color-warm-3, #f3a23e);
   border-color: var(--color-warm-1, #c47a1c);
 }
+
+.dga-script-editor code-mirror {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+.dga-script-editor code-mirror:has(.cm-content:focus)::after {
+  display: none;
+}

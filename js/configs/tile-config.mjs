@@ -67,6 +67,8 @@ function TileConfig_attachPartListeners(wrapped, partId, htmlElement, options) {
  * Handles auto-signing the script content
  */
 async function TileConfig_processSubmitData(wrapped, event, form, submitData) {
+  submitData.flags ??= {};
+  submitData.flags[MODULENAME] ??= {};
   const oldScript = this.document?.flags?.[MODULENAME]?.script;
   const newScript = submitData?.flags?.[MODULENAME]?.script;
   if (newScript !== oldScript) {
@@ -92,6 +94,26 @@ export function register() {
     id: "puzzle",
     icon: "fa-solid fa-puzzle-piece",
   });
+
+  if (game.modules.get("monks-active-tiles")?.active) {
+    // re-add the puzzle tab after monks active tiles so that Monk's isn't just clobbering it
+    Hooks.on("ready", async ()=>{
+      await new Promise((resolve) => { setTimeout(resolve, 2000); });
+      const MonksTileConfig = CONFIG.Tile.sheetClasses.base['core.TileConfig'].cls;
+      MonksTileConfig.TABS.sheet.tabs.push({
+        id: "puzzle",
+        icon: "fa-solid fa-puzzle-piece",
+      });
+      MonksTileConfig.PARTS.puzzle = {
+        template: `modules/${MODULENAME}/templates/tile-settings.hbs`
+      }
+      const MONKS_FOOTER = MonksTileConfig.PARTS.footer;
+      delete MonksTileConfig.PARTS.footer;
+      MonksTileConfig.PARTS.footer = MONKS_FOOTER;
+    })
+  }
+
+  
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TileConfig.prototype._preparePartContext", TileConfig_preparePartContext, "WRAPPER");
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TileConfig.prototype._attachPartListeners", TileConfig_attachPartListeners, "WRAPPER");
   libWrapper.register(MODULENAME, "foundry.applications.sheets.TileConfig.prototype._processSubmitData", TileConfig_processSubmitData, "WRAPPER");
