@@ -150,7 +150,7 @@ class DoorRegionBehaviorConfig extends HandlebarsApplicationMixin(DocumentSheetV
 
   static async #pickLocation(event, target) {
     const currentScene = this.document.scene;
-    const destScene = game.scenes.get(this.document.system.destinationScene);
+    const destScene = this.document.system.destinationScene;
     if (!destScene) {
       ui.notifications.warn("Set a destination scene before picking a location.");
       return;
