@@ -12,7 +12,7 @@ async function runAsMacro(self, {speaker, actor, token, ...scope}={}) {
   if (!command) return;
 
   const { verifyMessage } = game.modules.get(MODULENAME).api.crypto;
-  if (!signature || !(await verifyMessage(command, signature))) {
+  if (!(await verifyMessage(command, signature))) {
     ui.notifications.error("MACRO.InvalidSignature", { localize: true });
     return;
   }

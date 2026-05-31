@@ -64,6 +64,7 @@ async function _importPublicKey(jwkObj) {
  */
 export async function verifyMessage(message, signatureObj, maxAgeMs = null) {
   if (!crypto?.subtle || !game.settings.get(MODULENAME, "enableMessageSigning")) return true; // We're not in a secure context
+  if (!signatureObj) return false;
   const { signature, userId, timestamp } = signatureObj;
 
   if (typeof signature !== "string" || typeof userId !== "string" || typeof timestamp !== "number") {
