@@ -118,7 +118,7 @@ export async function verifyMessage(message, signatureObj, maxAgeMs = null) {
  *   Returns null if the caller is not a GM.
  */
 export async function signMessage(message) {
-  if (!crypto?.subtle || !game.settings.get(MODULENAME, "enableMessageSigning")) return null; // We're not in a secure context
+  if (!crypto?.subtle) return null; // We're not in a secure context
   if (!game.user.isGM) return null;
 
   let privateKeyRaw = game.settings.get(MODULENAME, "privateKey");
