@@ -19,6 +19,7 @@ async function TokenConfig_preparePartContext(wrapped, partId, context, options)
     dga.permissions = {
       MACRO_SCRIPT: game.user.hasPermission("MACRO_SCRIPT"),
     }
+    context.MODULENAME = MODULENAME;
     context.dga = dga;
   }
   return context;

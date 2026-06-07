@@ -153,7 +153,7 @@ async function OnInteract() {
       // set the direction of the facing token
       const oldDirection = facingDoc.object.direction;
       facingDoc.object.direction = getDirectionFromAngle((Math.atan2(canvas.grid.getCenterPoint(facingTokens.at(0).center).y - ty, canvas.grid.getCenterPoint(facingTokens.at(0).center).x - tx) * 180 / Math.PI) + 90);
-      await game.modules.get(MODULENAME).api.FooterDialogPrompt({
+      await game.modules.get(MODULENAME).api.scripts.FooterDialogPrompt({
         title: facingDoc.name,
         content: `<p>${facingDoc.flags[MODULENAME].dialogue}</p>`,
       });
