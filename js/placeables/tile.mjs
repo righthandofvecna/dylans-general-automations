@@ -195,9 +195,17 @@ function OnInitializeEdges() {
   }
 }
 
+/**
+ * The tiles are not ready during initializeEdges in foundry v14
+ */
+function OnCanvasReady() {
+  OnInitializeEdges();
+}
+
 
 export function register() {
   Hooks.on("initializeEdges", OnInitializeEdges);
+  Hooks.on("canvasReady", OnCanvasReady);
 
   CONFIG.Tile.objectClass.prototype.initializeEdges = Tile_initializeEdges;
   libWrapper.register(MODULENAME, "CONFIG.Tile.objectClass.prototype._onCreate", Tile_onCreate, "WRAPPER");
