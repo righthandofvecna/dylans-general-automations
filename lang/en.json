@@ -1,5 +1,6 @@
 {
     "DGA": {
+        "SheetClassSessionLog": "Session Log",
         "Settings": {
             "Volume": {
                 "interact": {
@@ -77,6 +78,17 @@
                     "hint": "Playback speed of the animation (1–60 fps). All clients derive the current frame from wall-clock time, keeping them in sync without any network traffic."
                 }
             }
+        },
+        "Portrait": "Portrait",
+        "Highlight": {
+            "Title": "Highlight",
+            "Label": "Preset Colors",
+            "Custom": "Custom Color",
+            "Apply": "Apply",
+            "Clear": "Clear Highlight"
+        },
+        "SessionLog": {
+            "ToRecap": "To Recap"
         }
     },
     "SCENE.TABS.SHEET.puzzle": "Puzzle",

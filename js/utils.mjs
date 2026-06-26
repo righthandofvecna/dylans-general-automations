@@ -19,7 +19,7 @@ export function isGMOnline() {
 }
 
 export async function sleep(ms) {
-	return new Promise((resolve)=>setTimeout(resolve, ms))
+	return new Promise((resolve)=>setTimeout(resolve, ms));
 }
 
 export function snapToGrid({ x, y }, grid, { isTile=false }={}) {
@@ -122,7 +122,7 @@ export async function getFiles(path) {
 export function getCombatsForScene(sceneId) {
 	const combats = game.combats.filter(c=>c?.active && c?.scene?.uuid === sceneId) ?? [];
 	if (combats.length > 0) return combats;
-	// PTR 2e automatically disconnects the combat from the scene, so let's check the participants' scene IDs instead
+	// v13 seems to automatically disconnect the combat from the scene, so let's check the participants' scene IDs instead
 	return game.combats.contents.filter(c=>c?.active && c?.combatants?.contents?.some(p=>p.sceneId === sceneId)) ?? [];
 }
 
@@ -178,4 +178,58 @@ export function naturalJoin(arr, joiner) {
 
 export function titleCase(str) {
 	return str.split(" ").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+}
+
+export function getOwners(document, { all=true }={}) {
+  if (document.documentName === "Token") document = document.actor;
+  const OWNERSHIP_LEVEL = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER
+  if (all && document?.ownership?.default >= OWNERSHIP_LEVEL) return game.users.contents;
+  const specificOwners = new Set(Object.entries(document?.ownership ?? {}).filter(([uid, v])=>v >= OWNERSHIP_LEVEL && uid !== "default").map(([uid,v])=>uid));
+  if (specificOwners.size > 0) return game.users.contents.filter(u=>specificOwners.has(u.id) || (all && u.isGM));
+  if (document?.ownership?.default >= OWNERSHIP_LEVEL) return game.users.contents;
+  return game.users.contents.filter(u=>u.isGM);
+}
+
+export function getOwner(document) {
+  // check the ownership
+  const owners = getOwners(document, { all: false });
+  const nonGmOwners = owners.filter(u=>!u.isGM);
+
+  if (nonGmOwners.length > 0) {
+    return nonGmOwners[0];
+  }
+  if (owners.length === 1) {
+    return owners[0];
+  }
+  return game.users.activeGM;
+}
+
+export function getActiveCombats() {
+  return game.combats.filter(c=>c.active && c.started && (c.scene?.active ?? true));
+};
+
+export function isInCombat(actor) {
+  return getActiveCombats().some(c=>c.turns.some(t=>t.actorId == actor._id));
+};
+
+export function isPerson(actor) {
+  return !actor?.flags?.["item-piles"]?.data?.enabled && !actor?.flags?.dnd5e?.isPolymorphed && actor.type !== `${MODULENAME}.summon` && !actor?.flags?.dnd5e?.familiar;
+}
+
+export function isPlayer(actor) {
+	return actor.hasPlayerOwner && isPerson(actor);
+}
+
+export function canAwardXp(actor) {
+  return actor.type == "character" && isPerson(actor);
+}
+
+export function getPlayerCharacters() {
+  const mainGroup = game.settings.get("dnd5e", "primaryParty")?.actor?.system?.members?.ids ?? new Set();
+  return game.actors.filter(actor => mainGroup.has(actor.id) || (mainGrop.size == 0 && actor.hasPlayerOwner));
+};
+
+export function rePrepareActor(actor) {
+  actor.reset();
+  actor.items.contents.forEach(i=>i.reset());
 }
