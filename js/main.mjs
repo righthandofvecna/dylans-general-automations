@@ -55,9 +55,8 @@ Hooks.on("init", async ()=>{
   runForAll("registerAfterDependencies");
   
   const MODULE = game.modules.get(MODULENAME);
-  MODULE.api = {
-    postSessionLogging: features.postSessionLogging
-  }
+  MODULE.api ??= {};
+  MODULE.api.postSessionLogging = features.postSessionLogging;
   Hooks.callAll(`${MODULENAME}.init`);
   MODULE.initialized = true;
 });
