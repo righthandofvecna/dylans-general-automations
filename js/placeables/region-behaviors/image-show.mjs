@@ -122,7 +122,7 @@ export function register() {
   CONFIG.RegionBehavior.typeLabels[ImageShowRBT._systemType] = `TYPES.RegionBehavior.${ImageShowRBT._systemType}`;
   CONFIG.RegionBehavior.typeIcons[ImageShowRBT._systemType] = "fas fa-image";
 
-  DocumentSheetConfig.registerSheet(RegionBehavior, MODULENAME, ImageShowRegionBehaviorConfig, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(RegionBehavior, MODULENAME, ImageShowRegionBehaviorConfig, {
     makeDefault: true,
     types: [ImageShowRBT._systemType],
     label: "Image Show Behavior",

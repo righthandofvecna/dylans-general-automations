@@ -325,7 +325,7 @@ export function register() {
   CONFIG.RegionBehavior.typeLabels[RBT._systemType] = `TYPES.RegionBehavior.${RBT._systemType}`;
   CONFIG.RegionBehavior.typeIcons[RBT._systemType] = "fas fa-fire";
 
-  DocumentSheetConfig.registerSheet(RegionBehavior, MODULENAME, AnimationOverlayRegionBehaviorConfig, {
+  foundry.applications.apps.DocumentSheetConfig.registerSheet(RegionBehavior, MODULENAME, AnimationOverlayRegionBehaviorConfig, {
     makeDefault: true,
     types: [RBT._systemType],
     label: "Animation Overlay Behavior",
