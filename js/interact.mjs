@@ -101,6 +101,10 @@ async function OnInteract() {
   const selected = game.canvas.tokens.placeables.filter(o => o.controlled).map(o => o.document);
   if (selected.length === 0) return;
 
+  // Allow modules to temporarily disable interactions on a token (e.g., during fishing or other
+  // multi-step sequences where accidental Enter presses would cause re-entry).
+  if (selected.some(t => t._interactionDisabled)) return;
+
   // check if the game is paused
   if ( game.paused && !game.user.isGM ) {
     ui.notifications.warn("GAME.PausedWarning", {localize: true});
