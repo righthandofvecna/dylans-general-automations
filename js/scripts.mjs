@@ -19,7 +19,7 @@ async function TriggerPickUpItem(tileUuid, actorUuid, itemUuids, userId) {
 
   const actor = await fromUuid(actorUuid);
   const awards = await Promise.all(itemUuids.map(uuid => fromUuid(uuid)));
-  const itemObjects = awards.filter(a => a?.documentName === "Item").map(a => a.toObject());
+  const itemObjects = awards.filter(a => a?.documentName === "Item").map(a => foundry.utils.mergeObject(a.toObject(), { _stats: {compendiumSource: a.uuid}}));
   const actorObjects = awards.filter(a => a?.documentName === "Actor");
 
   const { AwardItems, AssignActorToActor } = game.modules.get(MODULENAME)?.api?.scripts ?? {};
@@ -398,6 +398,7 @@ export function register() {
     AssignActorToActor,
   };
   MODULE.api.scripts.AwardItems ??= (actor, item)=>actor.createEmbeddedDocuments("Item", item instanceof Array ? item : [item]);
+  MODULE.api.scripts.GetQuantity ??= (item)=>parseInt(item?.system?.quantity) || 1;
 
   socket.registerSocket("deleteTile", DeleteTile);
   socket.registerSocket("triggerTileBreak", async (tileId)=>TriggerTileBreak(await fromUuid(tileId)));

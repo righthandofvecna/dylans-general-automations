@@ -201,9 +201,11 @@ function _placeTileItem(x, y) {
     });
   })).then(async ({items, interactionSound, visibleDistance})=>{
     if (!items) return;
-    const itemFrequency = items.reduce((l,i)=>({...l, [i]: (l[i] ?? 0) + 1}), {});
-    const itemObjects = await Promise.all(Object.keys(itemFrequency).map(uuid=>fromUuid(uuid)));
-    const itemTexts = itemObjects.map((item, i)=>itemFrequency[item.uuid] > 1 ? `${itemFrequency[item.uuid]}&times; ${item.name}` : ("aeiou".includes(item.name.toLowerCase()[0]) ? `an ${item.name}` : `a ${item.name}`));
+    const MODULE = game.modules.get(MODULENAME);
+    const deduplicatedItems = [...new Set(items)];
+    const itemObjects = Object.fromEntries(await Promise.all(deduplicatedItems.map(async (uuid)=>[uuid, await fromUuid(uuid)])));
+    const itemFrequency = items.reduce((l,i)=>({...l, [i]: (l[i] ?? 0) + (MODULE.api.scripts.GetQuantity?.(itemObjects[i]) ?? 1)}), {});
+    const itemTexts = deduplicatedItems.map((uuid, i)=>itemFrequency[uuid] > 1 ? `${itemFrequency[uuid]}&times; ${itemObjects[uuid].name}` : ("aeiou".includes(itemObjects[uuid].name.toLowerCase()[0]) ? `an ${itemObjects[uuid].name}` : `a ${itemObjects[uuid].name}`));
     // do a natural join of the item names (eg, "a, b, and c" or "a and b")
     if (itemTexts.length > 1) {
       itemTexts[itemTexts.length - 2] += " and " + itemTexts.pop();
