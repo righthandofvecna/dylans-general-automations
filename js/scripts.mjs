@@ -41,9 +41,17 @@ async function PickUpItem(tile, actor, items, message) {
     const myCount = counts[game.user.id] ?? 0;
     const otherActivePlayers = game.users.filter(u => u.active && !u.isGM && u.id !== game.user.id);
     if (otherActivePlayers.length > 0) {
-      const minOtherCount = Math.min(...otherActivePlayers.map(u => counts[u.id] ?? 0));
-      if (myCount > minOtherCount) {
-        FooterDialogPrompt({ content: "You found something, but another player hasn't had a chance to pick up yet — wait for them to catch up first!" });
+      const playersWithFewerPickups = otherActivePlayers.filter(u => (counts[u.id] ?? 0) < myCount);
+      if (playersWithFewerPickups.length > 0) {
+        let names = playersWithFewerPickups.map(u => u.name);
+        if (names.length > 2) {
+          names = names.slice(0, -2).join(", ") + ", and " + names.at(-1);
+        } else if (names.length == 2) {
+          names = names.join(" and ");
+        } else {
+          names = names[0];
+        }
+        FooterDialogPrompt({ content: `You found something, but another player hasn't had a chance to pick up yet — wait for ${names} to catch up first!` });
         return;
       }
     }
