@@ -144,186 +144,70 @@ function TokenHasDirection(token, directions) {
   return !token?.object?.isSpritesheet || directions.includes(token?.object?.direction);
 }
 
-/**
- * A template for target-painting an area
- */
-class PainterTemplate extends foundry.canvas.placeables.MeasuredTemplate {
-  #initialLayer;
-  #events;
-  #moveTime;
-
-  /**
-   * Creates a preview of the template.
-   * @returns {Promise}  A promise that resolves with the final template if created.
-   */
-  drawPreview() {
-    const initialLayer = canvas.activeLayer;
-
-    // Draw the template and switch to the template layer
-    this.draw();
-    this.layer.activate();
-    this.layer.preview.addChild(this);
-
-    // Hide the sheet that originated the preview
-    // this.actorSheet?.minimize();
-
-    // Activate interactivity
-    return this.activatePreviewListeners(initialLayer);
-  }
-
-  /** @override */
-  async _draw(options) {
-
-    // Load Fill Texture
-    if ( this.document.texture ) {
-      this.texture = await loadTexture(this.document.texture, {fallback: "icons/svg/hazard.svg"});
-    } else {
-      this.texture = null;
-    }
-
-    // Template Shape
-    this.template = this.addChild(new PIXI.Graphics());
-
-    // Enable highlighting for this template
-    canvas.interface.grid.addHighlightLayer(this.highlightId);
-  }
-
-  /**
-   * Refresh the displayed state of the MeasuredTemplate.
-   * This refresh occurs when the user interaction state changes.
-   * @protected
-   */
-  _refreshState() {
-
-    // Template Visibility
-    const wasVisible = this.visible;
-    this.visible = this.isVisible && !this.hasPreview;
-    if ( this.visible !== wasVisible ) MouseInteractionManager.emulateMoveEvent();
-
-    // Sort on top of others on hover
-    this.zIndex = this.hover ? 1 : 0;
-
-    // Control Icon Visibility
-    const isHidden = this.document.hidden;
-
-    // Alpha transparency
-    const alpha = isHidden ? 0.5 : 1;
-    this.template.alpha = alpha;
-    const highlightLayer = canvas.interface.grid.getHighlightLayer(this.highlightId);
-    highlightLayer.visible = this.visible;
-    // FIXME the elevation is not considered in sort order of the highlight layers
-    highlightLayer.zIndex = this.document.sort;
-    highlightLayer.alpha = alpha;
-    this.alpha = this._getTargetAlpha();
-  }
-
-  _refreshRulerText() { }
-
-  _refreshElevation() { }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Activate listeners for the template preview
-   * @param {CanvasLayer} initialLayer  The initially active CanvasLayer to re-activate after the workflow is complete
-   * @returns {Promise}                 A promise that resolves with the final measured template if created.
-   */
-  activatePreviewListeners(initialLayer) {
-    return new Promise((resolve, reject) => {
-      this.#initialLayer = initialLayer;
-      this.#events = {
-        cancel: this._onCancelPlacement.bind(this),
-        confirm: this._onConfirmPlacement.bind(this),
-        move: this._onMovePlacement.bind(this),
-        resolve,
-        reject,
-      };
-
-      // Activate listeners
-      canvas.stage.on("mousemove", this.#events.move);
-      canvas.stage.on("mousedown", this.#events.confirm);
-      canvas.app.view.oncontextmenu = this.#events.cancel;
-    });
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Shared code for when template placement ends by being confirmed or canceled.
-   * @param {Event} event  Triggering event that ended the placement.
-   */
-  async _finishPlacement(event) {
-    this.layer._onDragLeftCancel(event);
-    canvas.stage.off("mousemove", this.#events.move);
-    canvas.stage.off("mousedown", this.#events.confirm);
-    canvas.app.view.oncontextmenu = null;
-    canvas.app.view.onwheel = null;
-    this.#initialLayer.activate();
-    // await this.actorSheet?.maximize();
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Move the template preview when the mouse moves.
-   * @param {Event} event  Triggering mouse event.
-   */
-  _onMovePlacement(event) {
-    event.stopPropagation();
-    const now = Date.now(); // Apply a 20ms throttle
-    if ( now - this.#moveTime <= 20 ) return;
-    const center = event.data.getLocalPosition(this.layer);
-    const snapped = snapToGrid(center, canvas.grid);
-    this.document.updateSource({x: snapped.x, y: snapped.y});
-    this.refresh();
-    this.#moveTime = now;
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Confirm placement when the left mouse button is clicked.
-   * @param {Event} event  Triggering mouse event.
-   */
-  async _onConfirmPlacement(event) {
-    await this._finishPlacement(event);
-    const destination = snapToGrid(this.document, canvas.grid);
-    this.document.updateSource(destination);
-    this.#events.resolve(this.document.toObject());
-  }
-
-  /* -------------------------------------------- */
-
-  /**
-   * Cancel placement when the right mouse button is clicked.
-   * @param {Event} event  Triggering mouse event.
-   */
-  async _onCancelPlacement(event) {
-    await this._finishPlacement(event);
-    this.#events.reject();
-  }
+function _cellAt(point) {
+  const { sizeX, sizeY } = canvas.grid;
+  return {
+    x: Math.floor(point.x / sizeX) * sizeX,
+    y: Math.floor(point.y / sizeY) * sizeY,
+  };
 }
 
-/**
- * @returns {Promise}  A promise that resolves with the final location selected.
- */
-export async function UserPaintArea() {
-  const cls = CONFIG.MeasuredTemplate.documentClass;
-  const template = new cls({
-    t: "rect",
-    user: game.user.id,
-    distance: Math.hypot(1, 1),
-    width: 1,
-    direction: 45,
-    x: 0,
-    y: 0,
-    fillColor: game.user.color
-  }, {parent: canvas.scene});
-  const location = await (new PainterTemplate(template)).drawPreview();
-  if (!location) return null;
+export function UserPaintArea() {
+  return new Promise((resolve, reject) => {
+    if (!canvas?.ready) return reject(new Error("Canvas not ready"));
+    const view = canvas.app.view;
+    const { sizeX, sizeY } = canvas.grid;
+    const color = Number(game.user.color ?? 0xffffff);
 
-  const { x, y } = location;
-  return { x, y };
+    const marker = new PIXI.Graphics();
+    (canvas.controls ?? canvas.interface).addChild(marker);
+    const draw = ({ x, y }) => {
+      marker.clear()
+        .lineStyle(3, color, 0.9)
+        .beginFill(color, 0.25)
+        .drawRect(x, y, sizeX, sizeY)
+        .endFill();
+    };
+    const fromEvent = (e) => _cellAt(canvas.canvasCoordinatesFromClient({ x: e.clientX, y: e.clientY }));
+    draw(_cellAt(canvas.mousePosition ?? { x: 0, y: 0 }));
+
+    let swallowUp = false;
+    const block = (e) => { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); };
+
+    const onMove = (e) => { if (e.target === view) draw(fromEvent(e)); };
+    const onDown = (e) => {
+      if (e.target !== view) return; // UI clicks pass through
+      block(e);
+      swallowUp = true;
+      if (e.button === 0) finish(true, fromEvent(e));
+      else if (e.button === 2) finish(false);
+    };
+    const onUp = (e) => { if (swallowUp) { swallowUp = false; block(e); } };
+    // Compat mouse events and the context menu must not reach the canvas either.
+    const onCanvasOnly = (e) => { if (e.target === view) block(e); };
+    const onKey = (e) => { if (e.key === "Escape") { block(e); finish(false); } };
+    const onTearDown = () => finish(false);
+
+    const listeners = [
+      ["pointermove", onMove], ["pointerdown", onDown], ["pointerup", onUp],
+      ["mousedown", onCanvasOnly], ["mouseup", onCanvasOnly], ["contextmenu", onCanvasOnly],
+      ["keydown", onKey],
+    ];
+
+    let done = false;
+    function finish(ok, cell) {
+      if (done) return;
+      done = true;
+      for (const [type, fn] of listeners) window.removeEventListener(type, fn, { capture: true });
+      Hooks.off("canvasTearDown", onTearDown);
+      marker.destroy();
+      if (ok) resolve(cell);
+      else reject();
+    }
+
+    for (const [type, fn] of listeners) window.addEventListener(type, fn, { capture: true });
+    Hooks.once("canvasTearDown", onTearDown);
+  });
 }
 
 async function UserChooseDirections({ prompt, directions } = { prompt: "Select a direction", directions: ["all"] }) {

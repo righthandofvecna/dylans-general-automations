@@ -1,5 +1,4 @@
 import { MODULENAME, early_isGM, sleep, snapToGrid, listenFilepickerChange, getCombatsForScene, titleCase } from "./utils.mjs";
-import { UserPaintArea } from "./scripts.mjs";
 import { FooterDialogPrompt, FooterDialogConfirm } from "./dialog.mjs";
 
 
