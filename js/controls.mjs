@@ -258,6 +258,20 @@ function _placeTileReinforcementsPlatform(x, y) {
           </select>
         </div>
       </div>
+      <div class="form-group">
+        <label>Start On Round</label>
+        <div class="form-fields">
+          <input type="number" name="reinforcementRound" min="1" step="1" value="1">
+        </div>
+        <p class="hint">Available on Round End trigger only. The first round to spawn a reinforcement.</p>
+      </div>
+      <div class="form-group">
+        <label>Wait while occupied</label>
+        <div class="form-fields">
+          <input type="checkbox" name="waitWhileOccupied" checked>
+        </div>
+        <p class="hint">If ticked (default), skips spawning when a token already occupies the cell.</p>
+      </div>
     `
     foundry.applications.api.DialogV2.wait({
       window: { title: 'Actors To Spawn' },
@@ -269,18 +283,20 @@ function _placeTileReinforcementsPlatform(x, y) {
         callback: (event, button, dialog) => {
           const reinforcements = dialog.element.querySelector('item-drop-zone').items;
           const trigger = dialog.element.querySelector('select[name="trigger"]').value;
+          const reinforcementRound = Number(dialog.element.querySelector('input[name="reinforcementRound"]').value) || 1;
+          const waitWhileOccupied = dialog.element.querySelector('input[name="waitWhileOccupied"]').checked;
           if (reinforcements.length === 0) {
             ui.notifications.warn("No reinforcements were added. Please add at least one reinforcement to spawn.");
             reject("No reinforcements added");
           }
-          resolve({ reinforcements, trigger });
+          resolve({ reinforcements, trigger, reinforcementRound, waitWhileOccupied });
         },
       }],
       close: () => resolve(null),
     }).catch(()=>{
       resolve(null);
     });
-  })).then(async ({ reinforcements, trigger })=>{
+  })).then(async ({ reinforcements, trigger, reinforcementRound, waitWhileOccupied })=>{
     if (!reinforcements) return;
     const reinforcementObjs = (await Promise.all(reinforcements.map(async uuid => {
       const obj = await fromUuid(uuid);
@@ -308,6 +324,8 @@ function _placeTileReinforcementsPlatform(x, y) {
         trigger,
         enabled: true,
       },
+      [`flags.${MODULENAME}.reinforcementRound`]: Math.max(1, reinforcementRound),
+      [`flags.${MODULENAME}.waitWhileOccupied`]: waitWhileOccupied,
       name: `${titleCase(disposition)} Reinforcements Platform`,
       hidden: true,
       width: canvas.grid.sizeX,

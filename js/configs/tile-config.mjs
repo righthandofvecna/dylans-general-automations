@@ -13,6 +13,11 @@ async function TileConfig_preparePartContext(wrapped, partId, context, options) 
     for (const [name, config] of Object.entries(MODULE.api.BooleanTileSettings)) {
       dga.BooleanTileSettings[name].value = foundry.utils.getProperty(tile ?? {}, config.key);
     }
+    // Reinforcements platform: expose per-tile settings with their defaults.
+    if (dga.reinforcements) {
+      dga.reinforcementRound = Math.max(1, Number(dga.reinforcementRound) || 1);
+      dga.waitWhileOccupied = dga.waitWhileOccupied !== false; // default: true
+    }
     const SOUNDS = MODULE.api.SOUNDS ?? {};
     dga.isCustomSound = dga.interactionSound && !Object.keys(SOUNDS).some(v=>v === dga.interactionSound);
     dga.sounds = SOUNDS;

@@ -43,4 +43,39 @@
       <p class="hint">{{ localize "DGA.Fields.InteractionScript.hint" }}</p>
     </fieldset>
     {{/if}}
+    {{#if dga.reinforcements}}
+    <fieldset class="dga-reinforcements">
+      <legend>Reinforcements</legend>
+      <div class="form-group">
+        <label>Trigger</label>
+        <div class="form-fields">
+          <select name="flags.{{MODULENAME}}.reinforcements.trigger">
+            <option value="script" {{#if (eq dga.reinforcements.trigger "script")}}selected{{/if}}>Via Script</option>
+            <option value="scene"  {{#if (eq dga.reinforcements.trigger "scene")}}selected{{/if}}>Scene Creation</option>
+            <option value="round"  {{#if (eq dga.reinforcements.trigger "round")}}selected{{/if}}>Round End</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Enabled</label>
+        <div class="form-fields">
+          <input type="checkbox" name="flags.{{MODULENAME}}.reinforcements.enabled" {{#if dga.reinforcements.enabled}}checked{{/if}}>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>From end of round</label>
+        <div class="form-fields">
+          <input type="number" name="flags.{{MODULENAME}}.reinforcementRound" min="1" step="1" value="{{dga.reinforcementRound}}">
+        </div>
+        <p class="hint">Round End only. Spawns one reinforcement at the end of this round and every round after, and adds it to the combat.</p>
+      </div>
+      <div class="form-group">
+        <label>Wait while occupied</label>
+        <div class="form-fields">
+          <input type="checkbox" name="flags.{{MODULENAME}}.waitWhileOccupied" {{#if dga.waitWhileOccupied}}checked{{/if}}>
+        </div>
+        <p class="hint">If ticked (default), the platform skips spawning when a token already occupies the cell and will try again next round.</p>
+      </div>
+    </fieldset>
+    {{/if}}
   </div>
