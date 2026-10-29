@@ -292,9 +292,9 @@ function _placeTileReinforcementsPlatform(x, y) {
           resolve({ reinforcements, trigger, reinforcementRound, waitWhileOccupied });
         },
       }],
-      close: () => resolve(null),
+      close: () => resolve({}),
     }).catch(()=>{
-      resolve(null);
+      resolve({});
     });
   })).then(async ({ reinforcements, trigger, reinforcementRound, waitWhileOccupied })=>{
     if (!reinforcements) return;
