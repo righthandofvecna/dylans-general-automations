@@ -82,7 +82,7 @@ class DoorRegionBehaviorType extends foundry.data.regionBehaviors.RegionBehavior
         .forUsers([user.id])
         .async()
       .play();
-    await game.socket.emit("pullToScene", destinationScene.id, user.id);
+    await game.socket.emit("pullToScene", destinationScene.id, user.id, {});
   }
 
 }
