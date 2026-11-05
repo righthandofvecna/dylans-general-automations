@@ -4,7 +4,9 @@
     <div class="form-group">
       <label>{{ localize "DGA.RegionBehaviorConfig.Door.destinationScene.label" }}</label>
       <div class="form-fields">
-        <input type="text" name="system.destinationSceneId" value="{{region.system.destinationSceneId}}">
+        <select name="system.destinationSceneId" id="system.destinationSceneId" data-dtype="String">
+          {{selectOptions otherScenes selected=region.system.destinationSceneId localize=true}}
+        </select>
       </div>
       <p class="hint">{{ localize "DGA.RegionBehaviorConfig.Door.destinationScene.hint" }}</p>
     </div>

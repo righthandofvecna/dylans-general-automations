@@ -126,9 +126,11 @@ class DoorRegionBehaviorConfig extends HandlebarsApplicationMixin(DocumentSheetV
   /** @inheritDoc */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
+    const otherScenes = game.scenes.filter(s=>s.uuid !== this.document.scene?.uuid).map(s => ({ value: s.id, label: s.name, group: s.folder?.name ?? "" }));
     return Object.assign(context, {
       region: context.document,
-      buttons: this._getButtons()
+      buttons: this._getButtons(),
+      otherScenes,
     });
   }
 
@@ -150,7 +152,8 @@ class DoorRegionBehaviorConfig extends HandlebarsApplicationMixin(DocumentSheetV
 
   static async #pickLocation(event, target) {
     const currentScene = this.document.scene;
-    const destScene = this.document.system.destinationScene;
+    const destSceneId = target.form["system.destinationSceneId"].value;
+    const destScene = game.scenes.get(destSceneId) ?? this.document.system.destinationScene;
     if (!destScene) {
       ui.notifications.warn("Set a destination scene before picking a location.");
       return;
@@ -159,7 +162,10 @@ class DoorRegionBehaviorConfig extends HandlebarsApplicationMixin(DocumentSheetV
     try {
       const location = await game.modules.get(MODULENAME).api.scripts.UserPaintArea();
       if (location) {
-        await this.document.update({ "system.destinationPosition": { x: location.x, y: location.y } });
+        await this.document.update({
+          "system.destinationSceneId": destSceneId,
+          "system.destinationPosition": { x: location.x, y: location.y }
+        });
       }
     } finally {
       await currentScene?.view();
